@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PolyGlance G2 — Polymarket &amp; Hyperliquid HUD for Even Realities G2</title>
+<style>
+:root{--bg:#eceee9;--fg:#15201a;--mut:#5b675f;--card:#fbfcfa;--bd:#c9d0c8;--ac:#00a844;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101412;--fg:#e4ebe5;--mut:#8b978f;--card:#171c19;--bd:#2c352f;--ac:#00ff66}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 "Helvetica Neue",Arial,sans-serif}
+main{max-width:980px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:24px;margin:0 0 4px;letter-spacing:-.01em}
+.sub{color:var(--mut);margin:0 0 14px}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.b{border:1px solid var(--bd);background:var(--card);border-radius:4px;padding:3px 9px;font:12px ui-monospace,Menlo,monospace}
+.b i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:#d98a00}
+.b.live i{background:var(--ac)}
+.stage{overflow:hidden;border:1px solid var(--bd);border-radius:10px;background:var(--card);padding:14px;display:flex;justify-content:center}
+#wrap{width:576px;height:288px;transform-origin:top left}
+#lens{width:576px;height:288px;background:#000;color:#00FF66;font:600 17px/1.25 ui-monospace,"SF Mono",Menlo,Consolas,monospace;padding:10px 14px;position:relative;overflow:hidden;border-radius:6px;box-shadow:0 0 0 3px #1b1b1b,0 0 24px rgba(0,255,102,.25);text-shadow:0 0 4px rgba(0,255,102,.55)}
+#lens .h{display:flex;justify-content:space-between;font-size:13px;border-bottom:1px solid #00FF66;padding-bottom:3px;margin-bottom:6px}
+#lens .q{font-size:19px;line-height:1.2;height:46px;overflow:hidden;margin-bottom:6px}
+#lens .r{display:flex;align-items:center;gap:8px;height:24px;white-space:nowrap}
+#lens .bar{flex:1;height:12px;border:1px solid #00FF66}#lens .bar b{display:block;height:100%;background:#00FF66}
+#lens .inv{background:#00FF66;color:#000;text-shadow:none;padding:0 5px}
+#lens .dim{opacity:.6}
+#lens .pos{height:56px;padding:3px 4px;border:1px solid transparent}
+#lens .pos.sel{border-color:#00FF66}
+#lens .m{position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center}
+#lens .card{border:2px solid #00FF66;padding:16px 22px;text-align:center;font-size:22px;line-height:1.5}
+.ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:14px 0}
+button{font:inherit;background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:6px;padding:9px 8px;cursor:pointer;min-height:44px}
+button:hover{border-color:var(--ac)}button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+button small{display:block;color:var(--mut);font-size:11px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.row{grid-template-columns:1fr}}
+.pnl{border:1px solid var(--bd);background:var(--card);border-radius:8px;padding:12px}
+.pnl h2{font-size:14px;margin:0 0 8px}
+#log{font:12px/1.5 ui-monospace,Menlo,monospace;max-height:150px;overflow:auto;color:var(--mut)}
+.pre{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.note{color:var(--mut);font-size:13px}
+dialog{background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:10px;max-width:560px;width:92%}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+pre{font:12px/1.5 ui-monospace,Menlo,monospace;overflow:auto;margin:0}
+</style></head><body><main>
+<h1>PolyGlance G2</h1>
+<p class="sub">Polymarket odds and Hyperliquid paper positions, readable in one second on Even Realities G2. Read-only data. Paper trades only.</p>
+<div class="badges"><span class="b" id="bP"><i></i>Polymarket: …</span><span class="b" id="bH"><i></i>Hyperliquid: …</span><span class="b">Paper balance <span id="bal"></span></span><span class="b">No camera · No speaker · No real funds</span></div>
+<div class="stage"><div id="wrap"><div id="lens" aria-live="polite"></div></div></div>
+<div class="ctl">
+<button data-a="up">R1 Ring Up<small>↑</small></button>
+<button data-a="down">R1 Ring Down<small>↓</small></button>
+<button data-a="click">R1 Click<small>Enter · cycle option</small></button>
+<button data-a="tap">Temple Tap<small>Confirm · T</small></button>
+<button data-a="long">Temple Long-Press<small>Back / Cancel · Esc</small></button>
+<button data-a="mic">Mic (Voice)<small>Space</small></button>
+<button data-a="left">◀ View<small>←</small></button>
+<button data-a="right">View ▶<small>→</small></button>
+</div>
+<div class="row">
+<div class="pnl"><h2>Voice command presets (open the Voice view)</h2><div class="pre" id="pre"></div><p class="note" id="heard">Mic uses the browser Web Speech API where available.</p></div>
+<div class="pnl"><h2>Activity log</h2><div id="log"></div></div>
+</div>
+<p class="note"><button id="mf" style="min-height:36px">Even Hub manifest preview</button> Architecture: the lens is a 576×288 DOM canvas; hardware events map to one action function, so the same code runs in the Even Hub WebView and this simulator.</p>
+<dialog id="dlg"><pre id="mj"></pre><p class="note">Illustrative manifest. Check the current Even Hub SDK docs for exact fields.<br>Safety: GET and info-POST only, no keys, no wallet, no order endpoints. Fetch failures fall back to curated data.</p><button onclick="dlg.close()">Close</button></dialog>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const dlg=$('dlg'),L=$('lens');
+const LIM={bet:100,exposure:300,balance:1000};
+let M=[{q:"Will the Fed cut rates at the December meeting?",y:.62,v:4200000},{q:"Will Bitcoin close 2026 above $100,000?",y:.41,v:3100000},{q:"Will Ethereum hit a new all-time high in 2026?",y:.27,v:1850000},{q:"Will a US government shutdown happen before January?",y:.18,v:1240000},{q:"Will Solana ETF inflows exceed $1B this quarter?",y:.54,v:960000},{q:"Will OpenAI release a new flagship model this year?",y:.73,v:880000},{q:"Will Hyperliquid HYPE trade above $50 by year end?",y:.36,v:710000},{q:"Will the Lakers make the playoffs?",y:.58,v:540000}];
+let mids={BTC:97250,ETH:3420,SOL:218};
+let P=[{c:"BTC",side:1,lev:5,n:500,e:96400},{c:"ETH",side:1,lev:3,n:300,e:3480},{c:"SOL",side:-1,lev:4,n:200,e:224}];
+let bets=[],st={view:0,i:0,pick:1,act:0,pi:0,vi:0,modal:null,heard:"Say or tap a command"};
+const logs=[];
+const PRE=["Bet $50 YES on top market","Check Hyperliquid PnL","Close 50% BTC long","Cancel all"];
+const fmt=n=>n>=1e6?"$"+(n/1e6).toFixed(1)+"M":"$"+Math.round(n/1e3)+"K";
+const usd=n=>(n<0?"-$":"+$")+Math.abs(n).toFixed(2);
+const pnl=p=>p.n*(mids[p.c]/p.e-1)*p.side;
+const exposure=()=>bets.reduce((s,b)=>s+b.amt,0);
+function log(t){logs.unshift(new Date().toLocaleTimeString()+"  "+t);$('log').innerHTML=logs.slice(0,40).map(x=>"<div>"+x+"</div>").join("");}
+function badge(id,name,live){const e=$(id);e.className="b"+(live?" live":"");e.innerHTML="<i></i>"+name+": "+(live?"LIVE read-only":"FALLBACK (curated)");}
+async function load(){
+ let pl=false,hl=false;
+ try{const r=await fetch("https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=8&order=volume24hr&ascending=false");const j=await r.json();
+  const m=j.map(x=>{const pr=typeof x.outcomePrices==="string"?JSON.parse(x.outcomePrices):x.outcomePrices;return{q:x.question,y:+pr[0],v:+x.volume24hr||0}}).filter(x=>x.q&&x.y>=0&&x.y<=1);
+  if(m.length){M=m;pl=true}}catch(e){}
+ try{const r=await fetch("https://api.hyperliquid.xyz/info",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"allMids"})});const j=await r.json();
+  if(j.BTC&&j.ETH&&j.SOL){mids={BTC:+j.BTC,ETH:+j.ETH,SOL:+j.SOL};hl=true}}catch(e){}
+ badge("bP","Polymarket",pl);badge("bH","Hyperliquid",hl);log("Feeds: PM "+(pl?"live":"fallback")+" / HL "+(hl?"live":"fallback"));
+ st.live=hl;render();
+}
+setInterval(()=>{for(const k in mids){mids[k]*=1+(Math.random()-.5)*.0016}if(!st.modal)render()},2000);
+function bal(){const r=P.reduce((s,p)=>s+pnl(p),0);$('bal').textContent="$"+(LIM.balance-exposure()+r).toFixed(2)}
+const side=()=>st.pick<3?"YES":"NO",size=()=>[25,50,100][st.pick%3];
+function render(){
+ bal();let h="";
+ const tabs=["POLYMARKET","HL PAPER","VOICE"];
+ const hd=(r)=>`<div class="h"><span>${tabs[st.view]}</span><span>${r}</span></div>`;
+ if(st.modal){h=`<div class="m"><div class="card">${st.modal.l1}<br>${st.modal.l2}</div></div>`}
+ else if(st.view==0){const m=M[st.i],y=Math.round(m.y*100);
+  h=hd(`${st.i+1}/${M.length}`)+`<div class="q">${m.q}</div>
+  <div class="r"><span>YES ${y}%</span><span class="bar"><b style="width:${y}%"></b></span></div>
+  <div class="r"><span>NO&nbsp; ${100-y}%</span><span class="bar"><b style="width:${100-y}%"></b></span></div>
+  <div class="dim" style="font-size:13px;margin:2px 0 4px">VOL 24H ${fmt(m.v)}</div>`+
+  ["YES","NO"].map((s,k)=>`<div class="r">${s.padEnd(3," ").replace(/ /g,"&nbsp;")}`+[25,50,100].map((a,j)=>`<span class="${st.pick==k*3+j?"inv":""}">$${a}</span>`).join("")+`</div>`).join("");}
+ else if(st.view==1){
+  h=hd("PAPER")+P.map((p,k)=>{const u=pnl(p);return`<div class="pos ${k==st.pi?"sel":""}"><div>${p.c}-PERP ${p.side>0?"LONG":"SHORT"} ${p.lev}x</div><div class="dim" style="font-size:15px">MARK ${mids[p.c].toFixed(p.c=="SOL"?2:0)} &nbsp;PNL ${usd(u)}</div></div>`}).join("")+
+  `<div class="r" style="margin-top:4px">ACT <span class="${st.act==0?"inv":""}">TRIM 50%</span><span class="${st.act==1?"inv":""}">CLOSE</span></div>`;
+  if(!P.length)h=hd("PAPER")+`<div class="q">NO OPEN POSITIONS</div>`;}
+ else{h=hd("MIC")+PRE.map((t,k)=>`<div class="r"><span class="${k==st.vi?"inv":""}">${k+1}. ${t}</span></div>`).join("")+`<div class="dim" style="font-size:13px;margin-top:6px">HEARD: ${st.heard}</div><div class="dim" style="font-size:13px">${(logs[0]||"").slice(11,60)}</div>`}
+ L.innerHTML=h;
+}
+function ask(l1,l2,fn){st.modal={l1,l2:"[TAP = YES | HOLD = NO]",fn,sub:l2};render()}
+function parse(t){t=t.toLowerCase();st.heard=t;let m;
+ if(/cancel all/.test(t)){return ask("CANCEL ALL?",0,()=>{const n=bets.length;bets=[];log("Cancelled "+n+" paper bets")})}
+ if(/pnl|profit|check/.test(t)){const s=P.reduce((a,p)=>a+pnl(p),0);st.heard="PNL "+usd(s);log("HL paper PnL "+usd(s));st.view=2;return render()}
+ if(m=t.match(/(close|trim)\D*(\d+)?\s*%?\D*(btc|eth|sol)/)){const c=m[3].toUpperCase(),pc=m[1]=="close"&&!m[2]?100:Math.min(100,+m[2]||50),p=P.find(x=>x.c==c);
+  if(!p){log("Rejected: no "+c+" position");st.heard="No "+c+" position";return render()}
+  return ask(`${pc==100?"CLOSE":"TRIM "+pc+"%"} ${c}?`,0,()=>cut(p,pc))}
+ if(m=t.match(/bet\D*(\d+)\D*(yes|no)/)){const a=+m[1];
+  if(a>LIM.bet||a<1){log("Rejected: max $"+LIM.bet+" per paper bet");st.heard="Over $100 limit";return render()}
+  return betNow(a,m[2].toUpperCase())}
+ log("Unrecognized: "+t);st.heard="Not understood";render()}
+function betNow(a,s){if(exposure()+a>LIM.exposure){log("Rejected: exposure cap $"+LIM.exposure);st.heard="Exposure cap hit";st.modal=null;return render()}
+ const m=M[st.i];ask(`CONFIRM: $${a} ${s}?`,0,()=>{bets.push({q:m.q,s,amt:a});log(`Paper bet $${a} ${s}: ${m.q.slice(0,34)}`)})}
+function cut(p,pc){const r=pnl(p)*pc/100;p.n*=1-pc/100;if(pc>=100)P=P.filter(x=>x!==p);log(`Paper ${pc>=100?"closed":"trimmed "+pc+"%"} ${p.c}-PERP realized ${usd(r)}`)}
+function act(a){
+ if(st.modal){if(a=="tap"||a=="click"){st.modal.fn();st.modal=null;log("Confirmed")}else if(a=="long"){st.modal=null;log("Cancelled by user")}return render()}
+ const n=[M.length,P.length,PRE.length][st.view],k=["i","pi","vi"][st.view];
+ if(a=="left"||a=="right"){st.view=(st.view+(a=="right"?1:2))%3}
+ else if(a=="up"&&n)st[k]=(st[k]+n-1)%n;else if(a=="down"&&n)st[k]=(st[k]+1)%n;
+ else if(a=="click"){if(st.view==0)st.pick=(st.pick+1)%6;else if(st.view==1)st.act^=1;else parse(PRE[st.vi])}
+ else if(a=="tap"){if(st.view==0)betNow(size(),side());else if(st.view==1&&P.length){const p=P[st.pi];ask(st.act?`CLOSE ${p.c}?`:`TRIM 50% ${p.c}?`,0,()=>cut(p,st.act?100:50))}else if(st.view==2)parse(PRE[st.vi])}
+ else if(a=="mic")mic();
+ if(st.pi>=P.length)st.pi=0;render()}
+function mic(){st.view=2;const S=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!S){st.heard="Mic unavailable: use a preset";log("Web Speech API unavailable");return render()}
+ try{const r=new S();r.lang="en-US";st.heard="Listening…";render();r.onresult=e=>{const t=e.results[0][0].transcript;$('heard').textContent="Heard: "+t;log("Voice: "+t);parse(t)};r.onerror=e=>{st.heard="Mic error: "+e.error;render()};r.start()}catch(e){st.heard="Mic blocked: use a preset";render()}}
+PRE.forEach((t,k)=>{const b=document.createElement("button");b.textContent=t;b.onclick=()=>{st.view=2;st.vi=k;log("Voice preset: "+t);parse(t)};$('pre').appendChild(b)});
+document.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>act(b.dataset.a));
+document.addEventListener("keydown",e=>{const m={ArrowUp:"up",ArrowDown:"down",Enter:"click",Escape:"long",ArrowLeft:"left",ArrowRight:"right",t:"tap",T:"tap"," ":"mic"}[e.key];if(m&&!dlg.open){e.preventDefault();act(m)}});
+$('mf').onclick=()=>{$('mj').textContent=JSON.stringify({package_id:"com.polyglance.g2",name:"PolyGlance G2",version:"1.0.0",entry:"index.html",display:{width:576,height:288,mode:"monochrome"},permissions:{microphone:true,camera:false,speaker:false,network:["gamma-api.polymarket.com","api.hyperliquid.xyz"]},mode:"read-only-paper-trading"},null,2);dlg.showModal()};
+function fit(){const s=Math.min(1,(document.querySelector(".stage").clientWidth-28)/576);$('wrap').style.transform=`scale(${s})`;$('wrap').parentElement.style.height=288*s+"px";$('wrap').parentElement.style.alignItems="flex-start"}
+addEventListener("resize",fit);fit();render();log("PolyGlance G2 ready. Paper mode.");load();
+</script></body></html>
